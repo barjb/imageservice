@@ -1,10 +1,10 @@
 import os
-import json
 from images.microservice import upadateDitherUploaded, updateDitherDeleted
 from consumer.consumer import Consumer
 from dataclasses import dataclass
 from typing import Protocol
 from enum import Enum
+from config import Config
 
 
 class IMessage(Protocol):
@@ -54,7 +54,7 @@ class MessageTypes(Enum):
 
 
 if __name__ == "__main__":
-    consumer = Consumer(os.getenv("KAFKA_SERVER"))
-    consumer.subscribe(os.getenv("KAFKA_DITHER_TOPIC"), handler)
+    consumer = Consumer(Config.KAFKA_SERVER)
+    consumer.subscribe(Config.KAFKA_DITHER_TOPIC, handler)
 
     consumer.consume()

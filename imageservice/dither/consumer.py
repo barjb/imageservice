@@ -1,10 +1,9 @@
 from consumer.consumer import Consumer
-import os
 from dataclasses import dataclass
 from typing import Protocol
-from functools import partial
-from service import startService
-from enum import Enum
+from microservice import startService
+
+from config import Config
 
 
 class IMessage(Protocol):
@@ -47,7 +46,6 @@ def handler(headers, data: any):
 
 
 if __name__ == "__main__":
-    consumer = Consumer(kafka_server=os.getenv("KAFKA_SERVER"))
-    consumer.subscribe(os.getenv("KAFKA_IMAGE_TOPIC"), handler)
+    consumer = Consumer(kafka_server=Config.KAFKA_SERVER)
+    consumer.subscribe(Config.KAFKA_IMAGE_TOPIC, handler)
     consumer.consume()
-    # startService(data["uuid"], data["filename"], data["url"])

@@ -3,8 +3,10 @@ from sqlalchemy import create_engine, select
 from sqlalchemy.orm import Session
 import os
 
-POSTGRES_URL = f"postgresql://{os.environ.get('POSTGRES_USER')}:{os.environ.get('POSTGRES_PASSWORD')}@{os.environ.get('POSTGRES_HOST')}:{os.environ.get('POSTGRES_PORT')}/{os.environ.get('POSTGRES_DB')}"
-engine = create_engine(POSTGRES_URL)
+from config import Config
+
+# POSTGRES_URL = f"postgresql://{os.environ.get('POSTGRES_USER')}:{os.environ.get('POSTGRES_PASSWORD')}@{os.environ.get('POSTGRES_HOST')}:{os.environ.get('POSTGRES_PORT')}/{os.environ.get('POSTGRES_DB')}"
+engine = create_engine(Config.POSTGRES_URL)
 
 
 def upadateDitherUploaded(uuid, url_dither):
