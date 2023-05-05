@@ -1,40 +1,60 @@
-from models.image import Image
-from sqlalchemy import create_engine, select
-from sqlalchemy.orm import Session
-from kafka import KafkaConsumer
 import os
 import json
+from images.microservice import upadateDitherUploaded, updateDitherDeleted
+from consumer.consumer import Consumer
+from dataclasses import dataclass
+from typing import Protocol
+from enum import Enum
 
 
-TOPIC_NAME = os.getenv('KAFKA_DITHER_TOPIC')
-KAFKA_SERVER = os.getenv('KAFKA_SERVER')
-
-consumer = KafkaConsumer(TOPIC_NAME, bootstrap_servers=KAFKA_SERVER)
-
-print('start listening')
-
-POSTGRES_URL = f"postgresql://{os.environ.get('POSTGRES_USER')}:{os.environ.get('POSTGRES_PASSWORD')}@{os.environ.get('POSTGRES_HOST')}:{os.environ.get('POSTGRES_PORT')}/{os.environ.get('POSTGRES_DB')}"
-engine = create_engine(POSTGRES_URL)
+class IMessage(Protocol):
+    def process():
+        pass
 
 
-def testService(uuid, url_dither):
-    print('received')
-    print(uuid, url_dither)
-    with Session(engine) as session:
-        stmt = select(Image).where(Image.uuid == uuid)
-        try:
-            img = session.scalar(stmt)
-            img.url_dither = url_dither
-            img.status = 'FINISHED'
-            print(f'new url_dither {img.url_dither}, status {img.status}')
-            session.add(img)
-            session.commit()
-        except:
-            print('Error while updating sql row')
+@dataclass
+class IDitherUploadedMessage:
+    uuid: str
+    url_dither: str
+
+    def process(self):
+        upadateDitherUploaded(self.uuid, self.url_dither)
 
 
-for message in consumer:
-    value_bytes = message.value.decode('utf-8')
-    data = json.loads(value_bytes)
-    print(f"Processing uuid: {data['uuid']} url_dither: {data['url_dither']}")
-    testService(data['uuid'], data['url_dither'])
+@dataclass
+class IDitherDeletedMessage:
+    uuid: str
+
+    def process(self):
+        updateDitherDeleted(self.uuid)
+
+
+objs = {
+    "DITHER_DELETED": IDitherDeletedMessage,
+    "DITHER_UPLOADED": IDitherUploadedMessage,
+}
+
+
+def handler(headers, data: any):
+    print("handler called:", headers, data)
+
+    message_type = None
+    for header in headers:
+        if header[0] == "message_type":
+            message_type = header[1].decode("utf-8")
+    print(message_type)
+    message = objs[message_type]
+    message_obj = message(**data)
+    message_obj.process()
+
+
+class MessageTypes(Enum):
+    DITHER_IMAGE_UPLOADED = (IDitherUploadedMessage,)
+    DITHER_IMAGE_DELETED = IDitherDeletedMessage
+
+
+if __name__ == "__main__":
+    consumer = Consumer(os.getenv("KAFKA_SERVER"))
+    consumer.subscribe(os.getenv("KAFKA_DITHER_TOPIC"), handler)
+
+    consumer.consume()

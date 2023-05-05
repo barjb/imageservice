@@ -6,13 +6,11 @@ from uuid import UUID as _py_uuid
 from sqlalchemy.dialects.postgresql import UUID
 
 
-class Image(db.Model):
-    __tablename__ = "image"
+class DitheredImage(db.Model):
+    __tablename__ = 'ditheredimage'
     id: Mapped[int] = mapped_column(primary_key=True)
     uuid: Mapped[_py_uuid] = mapped_column(UUID())
-    filename: Mapped[str] = mapped_column(String(30))
-    status: Mapped[str] = mapped_column(String(10))
-    url: Mapped[str] = mapped_column(String(100))
+    channels: Mapped[int] = mapped_column(String(10))
     url_dither: Mapped[str] = mapped_column(String(100))
 
     def as_dict(self):

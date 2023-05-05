@@ -10,9 +10,32 @@
 - Notification Service (future)
   - Send email containing link to processed image
 
+
+## Env variables
+| Name                  | Description   |
+| --------------------- | ------------- |
+| KAFKA_SERVER          | HOSTNAME+PORT |
+| KAFKA_IMAGE_TOPIC     |               |
+| KAFKA_DITHER_TOPIC    |               |
+| CLOUDINARY_CLOUD_NAME |               |
+| CLOUDINARY_API_KEY    |               |
+| CLOUDINARY_API_SECRET |               |
+| POSTGRES_DB           | DB NAME       |
+| POSTGRES_PASSWORD     |               |
+| POSTGRES_USER         |               |
+| POSTGRES_PORT         |               |
+| POSTGRES_HOST         | HOSTNAME      |
+
+
+
+
+
 ## Upload Service
-- GET /id -
-- POST /upload
+- GET /images -
+- POST /images
+- GET /images/<string:uuid>
+- DELETE /images/<string:uuid>
+- GET /health
 
 ### Messages sent to dithering service
 - uuid
@@ -20,12 +43,17 @@
 - filename
 
 ## Dithering service
+- GET /images
+- GET /images/<string:uuid>
+- POST /images/<string:uuid>/<int:channels>
 - GET /health
 
 
 ### Message sent to upload service
 - uuid
 - url_dither
+
+
 
 
 ## Kafka
