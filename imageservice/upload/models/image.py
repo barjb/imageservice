@@ -11,7 +11,7 @@ class Image(db.Model):
     id: Mapped[int] = mapped_column(primary_key=True)
     uuid: Mapped[_py_uuid] = mapped_column(UUID())
     filename: Mapped[str] = mapped_column(String(30))
-    status: Mapped[str] = mapped_column(String(10))
+    status: Mapped[str] = mapped_column(String(30))
     url: Mapped[str] = mapped_column(String(100))
     url_dither: Mapped[str] = mapped_column(String(100))
 

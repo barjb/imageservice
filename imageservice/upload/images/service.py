@@ -2,21 +2,22 @@ from extensions import db
 from models.image import Image
 from flask import request
 from werkzeug.utils import secure_filename
-import os
 import cloudinary
 import cloudinary.uploader
 from uuid import uuid4
 
+from config import Config
+
 config = cloudinary.config(
-    cloud_name=os.getenv("CLOUDINARY_CLOUD_NAME"),
-    api_key=os.getenv("CLOUDINARY_API_KEY"),
-    api_secret=os.getenv("CLOUDINARY_API_SECRET"),
+    cloud_name=Config.CLOUDINARY_CLOUD_NAME,
+    api_key=Config.CLOUDINARY_API_KEY,
+    api_secret=Config.CLOUDINARY_API_SECRET,
     secure=True,
 )
 print(
-    os.getenv("CLOUDINARY_CLOUD_NAME"),
-    os.getenv("CLOUDINARY_API_KEY"),
-    os.getenv("CLOUDINARY_API_SECRET"),
+    Config.CLOUDINARY_CLOUD_NAME,
+    Config.CLOUDINARY_API_KEY,
+    Config.CLOUDINARY_API_SECRET,
 )
 print(
     "****1. Set up and configure the SDK:****\nCredentials: ",
@@ -68,7 +69,6 @@ def post_image():
                     return "Exception SQL"
                 from images.producer import upload_prod, publish
 
-                TOPIC_NAME = os.getenv("KAFKA_IMAGE_TOPIC")
                 obj = {
                     "filename": filename,
                     "url": result["secure_url"],
@@ -76,7 +76,7 @@ def post_image():
                 }
                 publish(
                     upload_prod,
-                    TOPIC_NAME,
+                    Config.KAFKA_IMAGE_TOPIC,
                     obj,
                     headers=[
                         ("message_type", b"IMAGE_UPLOADED"),
@@ -105,8 +105,6 @@ def get_image(uuid: str):
 def event():
     from images.producer import upload_prod, publish
 
-    TOPIC_NAME = os.getenv("KAFKA_IMAGE_TOPIC")
-
     custom_message = {
         "uuid": "1234-1234-asdf-qwer",
         "filename": "temp_filename",
@@ -116,7 +114,7 @@ def event():
         ("message_type", b"IMAGE_UPLOADED"),
         ("version", b"1.0.0"),
     ]
-    publish(upload_prod, TOPIC_NAME, custom_message, headers)
+    publish(upload_prod, Config.KAFKA_IMAGE_TOPIC, custom_message, headers)
     return "ok"
 
 
@@ -141,13 +139,12 @@ def delete_image(uuid: str):
         return "SQL exception"
     from images.producer import upload_prod, publish
 
-    TOPIC_NAME = os.getenv("KAFKA_IMAGE_TOPIC")
     obj = {
         "uuid": uuid,
     }
     publish(
         upload_prod,
-        TOPIC_NAME,
+        Config.KAFKA_IMAGE_TOPIC,
         obj,
         headers=[
             ("message_type", b"IMAGE_DELETED"),
@@ -166,7 +163,6 @@ def fix():
 
     from images.producer import upload_prod, publish
 
-    TOPIC_NAME = os.getenv("KAFKA_IMAGE_TOPIC")
     custom_message = {
         "uuid": str(result.uuid),
         "filename": result.filename,
@@ -176,5 +172,5 @@ def fix():
         ("message_type", b"IMAGE_UPLOADED"),
         ("version", b"1.0.0"),
     ]
-    publish(upload_prod, TOPIC_NAME, custom_message, headers)
+    publish(upload_prod, Config.KAFKA_IMAGE_TOPIC, custom_message, headers)
     return str(result.uuid)

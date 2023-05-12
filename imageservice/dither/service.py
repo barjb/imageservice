@@ -2,6 +2,8 @@ from models.image import DitheredImage
 from extensions import db
 import os
 
+from config import Config
+
 
 def health():
     return "health_dither_ok"
@@ -26,12 +28,11 @@ def get_images():
 
 
 def event():
-    TOPIC_NAME = os.getenv("KAFKA_DITHER_TOPIC")
     from producer import upload_prod, publish
 
     publish(
         producer=upload_prod,
-        topic=TOPIC_NAME,
+        topic=Config.KAFKA_DITHER_TOPIC,
         message={"uuid": "temp_uuid"},
         headers=[
             ("message_type", b"DITHER_DELETED"),
@@ -54,14 +55,14 @@ def event():
 def delete_image(uuid: str):
     try:
         db.session.execute(db.delete(DitheredImage).where(DitheredImage.uuid == uuid))
+        db.session.commit()
     except:
         return "SQL Error"
-    TOPIC_NAME = os.getenv("KAFKA_DITHER_TOPIC")
     from producer import upload_prod, publish
 
     publish(
         producer=upload_prod,
-        topic=TOPIC_NAME,
+        topic=Config.KAFKA_DITHER_TOPIC,
         message={"uuid": uuid},
         headers=[
             ("message_type", b"DITHER_DELETED"),

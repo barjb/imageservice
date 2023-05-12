@@ -21,16 +21,6 @@ services:
       KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT,PLAINTEXT_HOST:PLAINTEXT
       KAFKA_INTER_BROKER_LISTENER_NAME: PLAINTEXT
       KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
-  db:
-    image: postgres:latest
-    container_name: imageservice-postgres-db
-    env_file:
-      - .env.dev
-    ports:
-      - '5432:5432'
-    restart: on-failure
-    volumes:
-      - postgres-db:/var/lib/postgresql/data
   upload:
     image: upload_service
     container_name: upload_service
@@ -45,7 +35,6 @@ services:
       - ./imageservice/upload:/app
     depends_on:
       - kafka
-      - db
   dither:
     image: dither_service
     container_name: dither_service
@@ -84,5 +73,3 @@ services:
       - ./imageservice/upload:/app
     depends_on:
       - kafka
-volumes:
-  postgres-db:
