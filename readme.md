@@ -133,7 +133,7 @@ tests/
 1. I'm using free tier PostgreSQL cloud solutions. Project started it's existence on [ElephantSQL](https://www.elephantsql.com/), but limit of 5 concurrent connections quickly made the project buggy. Now I'm using [Neon.tech](https://neon.tech/) as it allows up to 100 simultaneous connections by default 💀 With usage of connection pooler this number can go up to 10000. 
 2. Eco tier ($5/mo) on heroku allows up to 20 connections as far as I know. I'm in safe teritory for now.
 3. [Cloudinary](https://cloudinary.com/) works flawlessly for now. API is limited to 500 req/h (listing & deleting resources).
-4. [CloudKaraka](https://elements.heroku.com/addons/cloudkarafka) is the service I'm going to use in deployment. Ain't no way I'm paying $100/mo for [that](https://elements.heroku.com/addons/heroku-kafka) 💀
+4. [CloudKaraka](https://elements.heroku.com/addons/cloudkarafka) is the service I'm going to use in deployment. I'm not paying $100/mo for [that](https://elements.heroku.com/addons/heroku-kafka)
 5. API Gateway in my case could be used to get more coherent API thanks to one entry point to many APIs. Without it client app has to connect to different host for each service. It's possible to deploy [WSO2](https://elements.heroku.com/buttons/wso2/cloud-heroku-api-gateway) as a Heroku dyno. I'm not sure whether I'll use it yet.
 More complex solutions provide also another services by default. NGINX Plus on Enterprise level provides:
 - load balancing
@@ -141,4 +141,5 @@ More complex solutions provide also another services by default. NGINX Plus on E
 - Content Cache
 - Web Application Firewall
 - protection against Denial of Service
+  
 You can download useful books at a small price of your personal data from [nginx.com](https://www.nginx.com/resources/library/). 
